@@ -1,8 +1,9 @@
 'use client';
+import dynamic from 'next/dynamic';
 import ActionablesFrame from '@/components/ActionablesFrame';
 import ProbabilityFrame from '@/components/ProbabilityFrame';
 import SpiderPlotFrame from '@/components/SpiderPlotFrame';
-import UMAP, { CreditDataWithPoint } from '@/components/UMAP';
+import type { CreditDataWithPoint } from '@/components/UMAP';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { CreditData, DashboardData } from './types';
 import MinusSquare from '@/components/Icons/MinusSquare';
@@ -13,6 +14,11 @@ import { Chart as ChartJS } from 'chart.js';
 import { useTranslations } from 'next-intl';
 import { useDashboardStore } from '@/app/stores/dashboardStore';
 import jsonData from '@/python-server/german_credit_umap_with_counterfactuals.json';
+
+const UMAP = dynamic(() => import('@/components/UMAP'), { 
+  ssr: false,
+  loading: () => <div className="flex-1 w-full h-full bg-gray-50 animate-pulse rounded-xl" /> 
+});
 
 // Helper to map categorical values to numbers
 const categoryToNumber = (val: string) => {

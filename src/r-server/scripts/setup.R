@@ -18,6 +18,7 @@ install_if_missing <- function(package) {
 }
 
 # Install required packages
+# Updated list with missing dependencies
 required_packages <- c(
   "devtools",
   "mlr",
@@ -28,7 +29,10 @@ required_packages <- c(
   "parallelMap",
   "ada",
   "ipred",
-  "evd"
+  "evd",
+  "ecr",   # Added
+  "smoof",  # Added
+  "trtf"   # Added
 )
 
 # Install all required packages
@@ -48,7 +52,7 @@ if (!require("mosmafs", character.only = TRUE)) {
 
 # Install counterfactuals package from local directory
 if (!require("counterfactuals", character.only = TRUE)) {
-  devtools::install("../r-server/counterfactuals/")
+  devtools::install("src/r-server/counterfactuals/")
 }
 
 
