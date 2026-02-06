@@ -5,6 +5,7 @@ import {
 	useEffect,
 	useState,
 	useCallback,
+	useRef,
 } from 'react';
 import {
 	Chart as ChartJS,
@@ -77,6 +78,8 @@ const UMAP: ForwardRefRenderFunction<
 		setIsOverTooltip(false);
 	};
 
+	const tooltipDataRef = useRef<number | null>(null);
+
 	const handleExternalTooltip = useCallback(
 		(tooltipModel: TooltipModel<'scatter'>) => {
 			if (!tooltipModel || tooltipModel.opacity === 0) return;
@@ -86,7 +89,9 @@ const UMAP: ForwardRefRenderFunction<
 				const data = (item.raw as { scenario: CreditData }).scenario;
 
 				// Only set data if it's a new point
-				if (tooltipData?.id !== data.id) {
+				if (tooltipDataRef.current !== data.id) {
+					tooltipDataRef.current = data.id;
+
 					const translateY: TooltipPosition['translateY'] =
 						tooltipModel.caretY < tooltipModel.chart.height * 0.4 ? '5%' : '-105%';
 
@@ -107,7 +112,7 @@ const UMAP: ForwardRefRenderFunction<
 				}
 			}
 		},
-		[tooltipData],
+		[],
 	);
 
 	// Separate scenarios by type: original vs counterfactual
@@ -206,21 +211,6 @@ const UMAP: ForwardRefRenderFunction<
 			},
 			pan: {
 				enabled: true,
-				onPanStart({ chart, point }) {
-					if (point.x === null || point.y === null) return false;
-
-					const area = chart.chartArea;
-					const w25 = area.width * 0.25;
-					const h25 = area.height * 0.25;
-					if (
-						point.x < area.left + w25 ||
-						point.x > area.right - w25 ||
-						point.y < area.top + h25 ||
-						point.y > area.bottom - h25
-					) {
-						return false; // abort
-					}
-				},
 				mode: 'xy',
 			},
 			zoom: {
