@@ -19,9 +19,9 @@ const RootLayout = async ({
 	params,
 }: {
 	children: React.ReactNode;
-	params: Promise<{ locale: Locale }>;
+	params: Promise<{ locale: string }>;
 }) => {
-	const { locale } = await params;
+	const { locale } = (await params) as { locale: Locale };
 	if (!hasLocale(routing.locales, locale)) {
 		notFound();
 	}
