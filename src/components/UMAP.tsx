@@ -80,40 +80,37 @@ const UMAP: ForwardRefRenderFunction<
 
 	const tooltipDataRef = useRef<number | null>(null);
 
-	const handleExternalTooltip = useCallback(
-		(tooltipModel: TooltipModel<'scatter'>) => {
-			if (!tooltipModel || tooltipModel.opacity === 0) return;
+	const handleExternalTooltip = useCallback((tooltipModel: TooltipModel<'scatter'>) => {
+		if (!tooltipModel || tooltipModel.opacity === 0) return;
 
-			const item = tooltipModel.dataPoints?.[0];
-			if (item) {
-				const data = (item.raw as { scenario: CreditData }).scenario;
+		const item = tooltipModel.dataPoints?.[0];
+		if (item) {
+			const data = (item.raw as { scenario: CreditData }).scenario;
 
-				// Only set data if it's a new point
-				if (tooltipDataRef.current !== data.id) {
-					tooltipDataRef.current = data.id;
+			// Only set data if it's a new point
+			if (tooltipDataRef.current !== data.id) {
+				tooltipDataRef.current = data.id;
 
-					const translateY: TooltipPosition['translateY'] =
-						tooltipModel.caretY < tooltipModel.chart.height * 0.4 ? '5%' : '-105%';
+				const translateY: TooltipPosition['translateY'] =
+					tooltipModel.caretY < tooltipModel.chart.height * 0.4 ? '5%' : '-105%';
 
-					let translateX: TooltipPosition['translateX'] = '-50%';
-					if (tooltipModel.caretX >= tooltipModel.chart.width - 200) {
-						translateX = '-100%';
-					} else if (tooltipModel.caretX < 200) {
-						translateX = '0%';
-					}
-					setTooltipData(data);
-
-					setTooltipPosition({
-						x: tooltipModel.caretX,
-						y: tooltipModel.caretY,
-						translateY,
-						translateX,
-					});
+				let translateX: TooltipPosition['translateX'] = '-50%';
+				if (tooltipModel.caretX >= tooltipModel.chart.width - 200) {
+					translateX = '-100%';
+				} else if (tooltipModel.caretX < 200) {
+					translateX = '0%';
 				}
+				setTooltipData(data);
+
+				setTooltipPosition({
+					x: tooltipModel.caretX,
+					y: tooltipModel.caretY,
+					translateY,
+					translateX,
+				});
 			}
-		},
-		[],
-	);
+		}
+	}, []);
 
 	// Separate scenarios by type: original vs counterfactual
 	const originalScenarios = useMemo(
