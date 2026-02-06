@@ -1,4 +1,11 @@
-import { forwardRef, ForwardRefRenderFunction, useMemo, useEffect, useState } from 'react';
+import {
+	forwardRef,
+	ForwardRefRenderFunction,
+	useMemo,
+	useEffect,
+	useState,
+	useCallback,
+} from 'react';
 import {
 	Chart as ChartJS,
 	CategoryScale,
@@ -70,35 +77,38 @@ const UMAP: ForwardRefRenderFunction<
 		setIsOverTooltip(false);
 	};
 
-	const handleExternalTooltip = (tooltipModel: TooltipModel<'scatter'>) => {
-		if (!tooltipModel || tooltipModel.opacity === 0) return;
+	const handleExternalTooltip = useCallback(
+		(tooltipModel: TooltipModel<'scatter'>) => {
+			if (!tooltipModel || tooltipModel.opacity === 0) return;
 
-		const item = tooltipModel.dataPoints?.[0];
-		if (item) {
-			const data = (item.raw as { scenario: CreditData }).scenario;
+			const item = tooltipModel.dataPoints?.[0];
+			if (item) {
+				const data = (item.raw as { scenario: CreditData }).scenario;
 
-			// Only set data if it's a new point
-			if (tooltipData?.id !== data.id) {
-				const translateY: TooltipPosition['translateY'] =
-					tooltipModel.caretY < tooltipModel.chart.height * 0.4 ? '5%' : '-105%';
+				// Only set data if it's a new point
+				if (tooltipData?.id !== data.id) {
+					const translateY: TooltipPosition['translateY'] =
+						tooltipModel.caretY < tooltipModel.chart.height * 0.4 ? '5%' : '-105%';
 
-				let translateX: TooltipPosition['translateX'] = '-50%';
-				if (tooltipModel.caretX >= tooltipModel.chart.width - 200) {
-					translateX = '-100%';
-				} else if (tooltipModel.caretX < 200) {
-					translateX = '0%';
+					let translateX: TooltipPosition['translateX'] = '-50%';
+					if (tooltipModel.caretX >= tooltipModel.chart.width - 200) {
+						translateX = '-100%';
+					} else if (tooltipModel.caretX < 200) {
+						translateX = '0%';
+					}
+					setTooltipData(data);
+
+					setTooltipPosition({
+						x: tooltipModel.caretX,
+						y: tooltipModel.caretY,
+						translateY,
+						translateX,
+					});
 				}
-				setTooltipData(data);
-
-				setTooltipPosition({
-					x: tooltipModel.caretX,
-					y: tooltipModel.caretY,
-					translateY,
-					translateX,
-				});
 			}
-		}
-	};
+		},
+		[tooltipData],
+	);
 
 	// Separate scenarios by type: original vs counterfactual
 	const originalScenarios = useMemo(
@@ -197,6 +207,8 @@ const UMAP: ForwardRefRenderFunction<
 			pan: {
 				enabled: true,
 				onPanStart({ chart, point }) {
+					if (point.x === null || point.y === null) return false;
+
 					const area = chart.chartArea;
 					const w25 = area.width * 0.25;
 					const h25 = area.height * 0.25;
@@ -291,7 +303,7 @@ const UMAP: ForwardRefRenderFunction<
 				}
 			},
 		};
-	}, [onScenarioSelect]);
+	}, [onScenarioSelect, handleExternalTooltip]);
 
 	const renderTooltip = () => {
 		if (!tooltipData || !tooltipPosition) return null;

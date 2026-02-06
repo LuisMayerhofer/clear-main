@@ -65,8 +65,8 @@ const Tooltip: FC<TooltipProps> = ({ data, position, onMouseEnter, onMouseLeave,
 			onMouseLeave={onMouseLeave}
 			className="absolute z-50 flex w-[200px] flex-col items-center rounded rounded-xl bg-white/70 p-3 shadow-lg"
 			style={{
-				left: position.x,
-				top: position.y,
+				left: position.x ?? 0,
+				top: position.y ?? 0,
 				transform: `translate(${position.translateX}, ${position.translateY})`,
 			}}
 		>
